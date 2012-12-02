@@ -1,0 +1,51 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Niklas Olsson <niklas.olsson@geckosolutions.se>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"X-Generator: Poedit 1.5.4\n"
+
+#. Text in function
+#: gas-injector.php:1
+msgid "GAS Injector Settings"
+msgstr "GAS Injector inställningar"
+
+#. Text in function
+#: gas-injector.php:131
+msgid "Google Analytics tracking code (UA-xxxx-x)"
+msgstr "Google Analytics spårningskod (UA-xxxx-x)"
+
+#. Text in function
+#: gas-injector.php:160
+msgid ""
+"This plugin exclude the visits from the Administrator if he/she is currently "
+"logged in."
+msgstr ""
+"Det här pluginet exkluderar besök från dig som administratör om du är "
+"inloggad."
+
+#. Text in function
+#: gas-injector.php:164
+msgid ""
+"This plugin is created by Gecko Solutions. Find more plugins at <br /><a "
+"href=\"http://www.geckosolutions.se/blog/wordpress-plugins/\">Gecko "
+"Solutions plugins</a> %s"
+msgstr ""
+"Det här pluginet är skapat av Gecko Solutions. Hitta fler plugins här  <br /"
+"><a href=\"http://www.geckosolutions.se/blog/wordpress-plugins/\">Gecko "
+"Solutions plugins</a> %s"
+
+#. Text in function
+#: gas-injector.php:143
+msgid "Update Options"
+msgstr "Uppdatera"
+
+#. Text in function
+#: gas-injector.php:139
+msgid "Your domain eg. .mydomain.com"
+msgstr "Din domän ex: .mydomain.com"
