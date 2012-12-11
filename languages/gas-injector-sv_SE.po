@@ -11,17 +11,122 @@ msgstr ""
 "X-Generator: Poedit 1.5.4\n"
 
 #. Text in function
-#: gas-injector.php:1
-msgid "GAS Injector Settings"
-msgstr "GAS Injector inställningar"
+#: gas-injector.php:230
+msgid "(Default label is \"Download\")"
+msgstr "(Förvald kategori är \"Download\")"
 
 #. Text in function
-#: gas-injector.php:131
+#: gas-injector.php:230
+msgid "(Default label is \"Form Tracking\")"
+msgstr "Förvald kategori är \"Form Tracking\")"
+
+#. Text in function
+#: gas-injector.php:230
+msgid "(Default label is \"Mailto\")"
+msgstr "(Förvald kategori är \"Mailto\")"
+
+#. Text in function
+#: gas-injector.php:230
+msgid "(Default label is \"MaxScroll\")"
+msgstr "(Förvald kategori är \"MaxScroll\")"
+
+#. Text in function
+#: gas-injector.php:230
+msgid "(Default label is \"Outbound\")"
+msgstr "(Förvald kategori är \"Outbound\")"
+
+#. Text in function
+#: gas-injector.php:230
+msgid "(Default label is \"Vimeo Video\")"
+msgstr "(Förvald kategori är \"Vimeo Video\")"
+
+#. Text in function
+#: gas-injector.php:230
+msgid "(Default label is \"Youtube Video\")"
+msgstr "(Förvald kategori är \"Youtube Video\")"
+
+#. Text in function
+#: gas-injector.php:243
+msgid "Activate debug mode"
+msgstr "Aktivera debug-läge"
+
+#. Text in function
+#: gas-injector.php:240
+msgid "Debug settings"
+msgstr "Debug-inställningar"
+
+#. Text in function
+#: gas-injector.php:230
+msgid "Disable tracking of Vimeo video"
+msgstr "Inaktivera spårning av Vimeo video"
+
+#. Text in function
+#: gas-injector.php:230
+msgid "Disable tracking of Youtube video"
+msgstr "Inaktivera spårning av Youtube video"
+
+#. Text in function
+#: gas-injector.php:230
+msgid "Disable tracking of downloads"
+msgstr "Inaktivera spårning av nedladdningar"
+
+#. Text in function
+#: gas-injector.php:230
+msgid "Disable tracking of forms"
+msgstr "Inaktivera spårning av formulär"
+
+#. Text in function
+#: gas-injector.php:230
+msgid "Disable tracking of mailto links"
+msgstr "Inaktivera spårning av maillänkar"
+
+#. Text in function
+#: gas-injector.php:230
+msgid "Disable tracking of outbound links"
+msgstr "Inaktivera spårning av utgående länkar"
+
+#. Text in function
+#: gas-injector.php:230
+msgid "Disable tracking of scrolling"
+msgstr "Inaktivera spårning av scrollning"
+
+#. Text in function
+#: gas-injector.php:255
+msgid ""
+"Enter the tracking code from the Google Analytics account you want to use "
+"for this site. None of the java script code will be inserted if you leave "
+"this field empty. (eg. the plugin will be inactive) "
+msgstr ""
+"Ange spårningskoden från det Google Analytics-konto som du vill använda för "
+"denna webbplats. Javaskriptet kommer inte läggas till om du lämnar detta "
+"fält tomt. (d.v.s. pluginet är inte aktivt)"
+
+#. Text in function
+#: gas-injector.php:1
+msgid "GAS Injector"
+msgstr "GAS Injector"
+
+#. Text in function
+#: gas-injector.php:217
 msgid "Google Analytics tracking code (UA-xxxx-x)"
 msgstr "Google Analytics spårningskod (UA-xxxx-x)"
 
 #. Text in function
-#: gas-injector.php:160
+#: gas-injector.php:228
+msgid "Optional settings"
+msgstr "Valfria inställningar"
+
+#. Text in function
+#: gas-injector.php:244
+msgid ""
+"The debug mode help you test the analytics setup and to see that the events "
+"are triggered."
+msgstr ""
+"Debug-läget hjälper dig att testa analysinställningarna för att se att "
+"händelserna triggas korrekt."
+
+#. Text in function
+#: gas-injector.php:266
 msgid ""
 "This plugin exclude the visits from the Administrator if he/she is currently "
 "logged in."
@@ -30,22 +135,40 @@ msgstr ""
 "inloggad."
 
 #. Text in function
-#: gas-injector.php:164
+#: gas-injector.php:270
 msgid ""
-"This plugin is created by Gecko Solutions. Find more plugins at <br /><a "
-"href=\"http://www.geckosolutions.se/blog/wordpress-plugins/\">Gecko "
-"Solutions plugins</a> %s"
+"This plugin is created by Gecko Solutions. Find more plugins at <a href="
+"\"http://www.geckosolutions.se/blog/wordpress-plugins/\">Gecko Solutions "
+"plugins</a> %s"
 msgstr ""
-"Det här pluginet är skapat av Gecko Solutions. Hitta fler plugins här  <br /"
-"><a href=\"http://www.geckosolutions.se/blog/wordpress-plugins/\">Gecko "
-"Solutions plugins</a> %s"
+"Det här pluginet är skapat av Gecko Solutions. Hitta fler plugins på <a href="
+"\"http://www.geckosolutions.se/blog/wordpress-plugins/\">Gecko Solutions "
+"plugins</a> %s"
 
 #. Text in function
-#: gas-injector.php:143
+#: gas-injector.php:248
 msgid "Update Options"
 msgstr "Uppdatera"
 
 #. Text in function
-#: gas-injector.php:139
+#: gas-injector.php:274
+msgid ""
+"With the optional settings you can specify which of the different parts you "
+"want to includ in your analytics. All methods are active as default. You can "
+"also change the default labels for the categories that show up in Google "
+"Analytics."
+msgstr ""
+"Via de valbara inställningarna kan du specificera vilka delar du vill "
+"inkludera i din analys. Alla metoder är aktiva om inget annat görs. Du kan "
+"också ändra de förvalda kategorietiketterna som sedan syns i Google "
+"Analytics."
+
+#. Text in function
+#: gas-injector.php:225
 msgid "Your domain eg. .mydomain.com"
 msgstr "Din domän ex: .mydomain.com"
+
+#. Text in function
+#: gas-injector.php:319
+msgid "Custom label:"
+msgstr "Valbar kategori:"
