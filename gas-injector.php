@@ -3,33 +3,38 @@
  Plugin Name: GAS Injector
  Plugin URI: http://www.geckosolutions.se/blog/wordpress-plugins/
  Description: GAS Injector for Wordpress will help you add Google Analytics on Steroids (GAS) to your WordPress blog. 
- This will not only add basic Google Analytics tracking but also let you track whitch outbound links your visitors click on, 
- how they use your forms, whitch movies they are watching, how far down on the page are they scrolling. This and more you get by using GAS Injector for Wordpress. 
- Just add your Google Analytics tracking code and your domain to start the tracking.
- Version: 1.0
+ This will not only add basic Google Analytics tracking but also let you track which outbound links your visitors click on, 
+ how they use your forms, which movies they are watching, how far down on the page do they scroll etc. This and more you get by using GAS Injector for Wordpress. 
+ Just add your Google Analytics tracking code and your domain and you are done!
+ Version: 1.1.1
  Author: Niklas Olsson
  Author URI: http://www.geckosolutions.se
  License: GPL 3.0, @see http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 /**
+ * Loads jQuery if not loaded.
+ */
+wp_enqueue_script('jquery');
+
+/**
  * WP Hooks
  **/
-add_action('init', 'load_gas_for_wordpress_translation_file');
+add_action('init', 'load_gas_injector_translation_file');
 add_action('wp_head', 'insert_google_analytics_code_and_domain');
 add_action('admin_head', 'admin_register_gas_for_wordpress_head');
-add_action('admin_menu', 'add_gas_for_wordpress_options_admin_menu');
+add_action('admin_menu', 'add_gas_injector_options_admin_menu');
 
 /**
  * Loads the translation file for this plugin.
  */
-function load_gas_for_wordpress_translation_file() {
+function load_gas_injector_translation_file() {
   $plugin_path = basename(dirname(__FILE__));
-  load_plugin_textdomain('gas_for_wordpress', null, $plugin_path . '/languages/');
+  load_plugin_textdomain('gas-injector', null, $plugin_path . '/languages/');
 }
 
 /**
- * Prints the stylesheet link in the admin head.
+ * Insert the stylesheet and javascripts in the admin head.
  */
 function admin_register_gas_for_wordpress_head() {
   $wp_content_url = get_option('siteurl');
@@ -37,8 +42,11 @@ function admin_register_gas_for_wordpress_head() {
     $wp_content_url = str_replace('http://', 'https://', $wp_content_url);
   }
   
-  $url = $wp_content_url . '/wp-content/plugins/' . basename(dirname(__FILE__)) . '/css/gas_for_wordpress.css';
-  echo "<link rel='stylesheet' type='text/css' href='$url' />\n";
+  $plugin_url = $wp_content_url . '/wp-content/plugins/' . basename(dirname(__FILE__));
+  $css_url = $plugin_url.'/css/gas-injector.css';
+  $js_url = $plugin_url.'/js/gas-injector.js';
+  echo "<link rel='stylesheet' type='text/css' href='$css_url' />\n".
+       "<script type='text/javascript' src='$js_url'></script>\n";
 }
 
 /**
@@ -46,9 +54,9 @@ function admin_register_gas_for_wordpress_head() {
  */
 function insert_google_analytics_code_and_domain() {
   if (!is_admin() && get_option('ua_tracking_code') != "") {
-    echo "<!-- GAS for Wordpress from http://www.geckosolutions.se/blog/wordpress-plugins/ -->\n"; 
-    echo get_gas_tracking_code(get_option('ua_tracking_code'), get_option('site_domain_url'));
-    echo "\n<!-- / GAS for Wordpress -->\n";
+    echo "<!-- GAS Injector for Wordpress from http://www.geckosolutions.se/blog/wordpress-plugins/ -->\n"; 
+    echo get_gas_tracking_code();
+    echo "\n<!-- / GAS Injector for Wordpress -->\n";
   }
 }
 
@@ -60,51 +68,131 @@ function insert_google_analytics_code_and_domain() {
  * @param site_domain_url the url to use to determine the domain of the tracking.
  * @return the tracking code to render.
  */
-function get_gas_tracking_code($ua_tracking_code, $site_domain_url) {
-  $gasFile = path_join(WP_PLUGIN_URL, basename(dirname(__FILE__))."/js/gas-1.10.1.min.js");
-  $gas_tracking_code = "<script type='text/javascript'>";
-  $gas_tracking_code .= "var _gas = _gas || [];";
-  $gas_tracking_code .= "
-    _gas.push(['_setAccount', '".$ua_tracking_code."']);
-    _gas.push(['_setDomainName', '".$site_domain_url."']);
+function get_gas_tracking_code() {
+  $code = "<script type='text/javascript'>";
+  $code .= "var _gas = _gas || [];";
+  
+  if (get_option('debug') == 'on') {
+    $code .= "_gas.push(['_setDebug', true]);";
+  }
+  
+  $code .= "
+    _gas.push(['_setAccount', '".get_option('ua_tracking_code')."']);
+    _gas.push(['_setDomainName', '".get_option('site_domain_url')."']);
     _gas.push(['_trackPageview']);
-    _gas.push(['_gasTrackForms']);
-    _gas.push(['_gasTrackOutboundLinks']);
-    _gas.push(['_gasTrackMaxScroll']);
-    _gas.push(['_gasTrackDownloads']);
-    _gas.push(['_gasTrackYoutube', {
-      percentages: [25, 50, 75, 90],
-      force: true
-    }]);
-    _gas.push(['_gasTrackVimeo', {force: true}]);
-    _gas.push(['_gasTrackMailto']);
-    ";
-  $gas_tracking_code .= "
+  ";
+
+  $code .= gas_injector_render_tracking_option('_gasTrackOutboundLinks', get_option('track_outbound_links'), get_option('outbound_links_category'));
+  $code .= gas_injector_render_tracking_option('_gasTrackForms', get_option('track_forms'), get_option('forms_category'));
+  $code .= gas_injector_render_tracking_option('_gasTrackMaxScroll', get_option('track_scroll'), get_option('scrolling_category'));
+  $code .= gas_injector_render_tracking_option('_gasTrackDownloads', get_option('track_downloads'), get_option('downloads_category'));
+  $code .= gas_injector_render_tracking_option('_gasTrackMailto', get_option('track_mailto_links'), get_option('mailto_links_category'));
+  
+  $code .= gas_injector_render_video_tracking_option('_gasTrackYoutube', get_option('track_youtube'), get_option('youtube_category'), "[25, 50, 75, 90]");
+  $code .= gas_injector_render_video_tracking_option('_gasTrackVimeo', get_option('track_vimeo'), get_option('vimeo_category'), '');
+  
+  $code .= "
     (function() {
     var ga = document.createElement('script');
     ga.type = 'text/javascript';
     ga.async = true;
-    ga.src = '".$gasFile."';
+    ga.src = '".gas_injector_getGASFile()."';
     var s = document.getElementsByTagName('script')[0];
     s.parentNode.insertBefore(ga, s);
   })();
-  ";
-  $gas_tracking_code .= "</script>";
+  </script>";
   
-  return $gas_tracking_code;
+  return $code;
+}
+
+/**
+ * Render video tracking code.
+ * 
+ * @param string $trackType type of tracking eg. _gasTrackYoutube
+ * @param string $option option if this tracking should be disabled or not.
+ * @param string $category custom category label.
+ * @param string $percentages Tracking levels for Youtube video only. 
+ */
+function gas_injector_render_video_tracking_option($trackType, $option, $category, $percentages) {
+  $result = "";
+  if (gas_injector_isNullOrEmpty($option)) {
+    
+    if (!gas_injector_isNullOrEmpty($category)) {
+      $category = "category: '".$category."',";
+    }
+    
+    if (!gas_injector_isNullOrEmpty($percentages)) {
+      $percentages = "percentages: ".$percentages.",";
+    }
+    
+    $result .= "_gas.push(['".$trackType."', {";
+    
+    if (!gas_injector_isNullOrEmpty($category)) {
+      $result .= $category;
+    }
+    
+    if (!gas_injector_isNullOrEmpty($category)) {
+      $result .= $percentages;
+    }
+    $result .=  "force: true
+    }]);";
+  }
+  return  $result;
+}
+
+/**
+ * Render the tracking option based on the type, opton and category.
+ * 
+ * @param string $trackType type of tracking eg. _gasTrackDownloads
+ * @param string $option option if this tracking should be disabled or not.
+ * @param string $category custom category label.
+ */
+function gas_injector_render_tracking_option($trackType, $option, $category) {
+  $result = "";
+  if (gas_injector_isNullOrEmpty($option)) {
+    if (!gas_injector_isNullOrEmpty($category)) {
+      $result = "_gas.push(['".$trackType."', {
+        category: '".$category."'  
+      }]);";
+    } else {
+      $result = "_gas.push(['".$trackType."']);";
+    }
+  }
+  return $result;
+}
+
+/**
+ * Check if the given value is null or an empty string.
+ * @param string the given string to evaluate.
+ */
+function gas_injector_isNullOrEmpty($val) {
+  if(is_null($val)) {
+    return true;
+  } else if ($val == "") {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
+ * Gets the gas-x.x-min.js file.
+ */
+function gas_injector_getGASFile() {
+  return path_join(WP_PLUGIN_URL, basename(dirname(__FILE__))."/js/gas-1.10.1.min.js");
 }
 
 /**
  * Add the plugin options page link to the dashboard menu.  
  */
-function add_gas_for_wordpress_options_admin_menu() {
-  add_options_page(__('GAS for Wordpress Settings', 'gas-injector'), __('GAS for Wordpress Settings', 'gas-injector'), 'manage_options', basename(__FILE__), 'gas_for_wordpress_plugin_options_page'); 
+function add_gas_injector_options_admin_menu() {
+  add_options_page(__('GAS Injector', 'gas-injector'), __('GAS Injector', 'gas-injector'), 'manage_options', basename(__FILE__), 'gas_injector_plugin_options_page'); 
 } 
 
 /**
  * The main function that generate the options page for this plugin.
  */
-function gas_for_wordpress_plugin_options_page() {
+function gas_injector_plugin_options_page() {
 
   $tracking_code_err = "";
   if(!isset($_POST['update_gas_for_wordpress_plugin_options'])) {
@@ -113,7 +201,7 @@ function gas_for_wordpress_plugin_options_page() {
   
   if ($_POST['update_gas_for_wordpress_plugin_options'] == 'true') {
     
-  	$errors = gas_for_wordpress_plugin_options_update(); 
+  	$errors = gas_injector_plugin_options_update(); 
   
     if (is_wp_error($errors)) {
       $tracking_code_err = $errors->get_error_message('tracking_code');
@@ -123,7 +211,7 @@ function gas_for_wordpress_plugin_options_page() {
     <div class="wrap">
     	<div class="gai-col1">
         <div id="icon-themes" class="icon32"><br /></div>
-        <h2><?php echo __('GAS for WordPress Settings', 'gas-injector'); ?></h2>
+        <h2><?php echo __('GAS Injector for WordPress', 'gas-injector'); ?></h2>
   
         <form method="post" action="">
           
@@ -133,25 +221,45 @@ function gas_for_wordpress_plugin_options_page() {
               echo '<div class="errorMsg">'.$tracking_code_err.'</div>';
             }
           ?>
-          <input type="text" name="ua_tracking_code" id="ua_tracking_code" value="<?php echo get_option('ua_tracking_code'); ?>" style="width:400px;"/>
+          <input type="text" name="ua_tracking_code" id="ua_tracking_code" value="<?php echo get_option('ua_tracking_code'); ?>" />
           
           <h4 style="margin-bottom: 0px;"><?php echo __('Your domain eg. .mydomain.com', 'gas-injector'); ?></h4>
-          <input type="text" name="site_domain_url" id="site_domain_url" value="<?php echo get_option('site_domain_url'); ?>" style="width:400px;"/>
+          <input type="text" name="site_domain_url" id="site_domain_url" value="<?php echo get_option('site_domain_url'); ?>" />
+          <br>
+          <h2><?php echo __('Optional settings', 'gas-injector'); ?></h2>
+          
+          <?php
+            gas_injector_render_admin_tracking_option("track_outbound_links", 'outbound_links_category', get_option('outbound_links_category'), __('Disable tracking of outbound links', 'gas-injector'), __('(Default label is "Outbound")', 'gas-injector')); 
+            gas_injector_render_admin_tracking_option("track_forms", "forms_category", get_option('forms_category'), __('Disable tracking of forms', 'gas-injector'), __('(Default label is "Form Tracking")', 'gas-injector'));
+            gas_injector_render_admin_tracking_option("track_mailto_links", "mailto_links_category", get_option('mailto_links_category'), __('Disable tracking of mailto links', 'gas-injector'), __('(Default label is "Mailto")', 'gas-injector'));
+            gas_injector_render_admin_tracking_option("track_scroll", "scrolling_category", get_option('scrolling_category'), __('Disable tracking of scrolling', 'gas-injector'), __('(Default label is "MaxScroll")', 'gas-injector'));
+            gas_injector_render_admin_tracking_option("track_downloads", "downloads_category", get_option('downloads_category'), __('Disable tracking of downloads', 'gas-injector'), __('(Default label is "Download")', 'gas-injector'));
+            gas_injector_render_admin_tracking_option("track_youtube", "youtube_category", get_option('youtube_category'), __('Disable tracking of Youtube video', 'gas-injector'), __('(Default label is "Youtube Video")', 'gas-injector'));
+            gas_injector_render_admin_tracking_option("track_vimeo", "vimeo_category", get_option('vimeo_category'), __('Disable tracking of Vimeo video', 'gas-injector'), __('(Default label is "Vimeo Video")', 'gas-injector'));
+          ?>
+          
+          <h2><?php echo __('Debug settings', 'gas-injector'); ?></h2>
+          
+          <div class="gasOption">
+            <h4><input name="debug" type="checkbox" id="debug" <?php echo gas_injector_get_checked(get_option('debug')); ?> /> <?php echo __('Activate debug mode', 'gas-injector'); ?></h4>
+            <p><?php echo __('The debug mode help you test the analytics setup and to see that the events are triggered.', 'gas-injector'); ?></p>
+          </div>
           
           <input type="hidden" name="update_gas_for_wordpress_plugin_options" value="true" />
           <p><input type="submit" name="search" value="<?php echo __('Update Options', 'gas-injector'); ?>" class="button" /></p>
+        
         </form>
       </div>
       <div class="gai-col2">
       
       	<div class="description">
       		<?php 
-      		  echo __('Enter the tracking code from the Google Analytics account you want to use for this site. None of the java script code will be inserted if you leave this field empty. (eg. the plugin will be inactive) ', 'google-analytics-injector');
+      		  echo __('Enter the tracking code from the Google Analytics account you want to use for this site. None of the java script code will be inserted if you leave this field empty. (eg. the plugin will be inactive) ', 'gas-injector');
       		  
       		  $images_path = path_join(WP_PLUGIN_URL, basename(dirname(__FILE__))."/images/");
       		  $external_icon = '<img src="'.$images_path.'external_link_icon.png" title="External link" />';
       		  
-      		  printf(__('Go to <a href="http://www.google.com/analytics/" target="_blank">Google Analytics</a> %s and get your tracking code.', 'google-analytics-injector'), $external_icon);
+      		  printf(__('Go to <a href="http://www.google.com/analytics/" target="_blank">Google Analytics</a> %s and get your tracking code.', 'gas-injector'), $external_icon);
       		?>
       	</div>
       	
@@ -160,7 +268,11 @@ function gas_for_wordpress_plugin_options_page() {
       	</div>
       	
       	<div class="description">
-      	  <?php printf(__('This plugin is created by Gecko Solutions. Find more plugins at <br /><a href="http://www.geckosolutions.se/blog/wordpress-plugins/">Gecko Solutions plugins</a> %s', 'gas-injector'), $external_icon); ?>
+      	  <?php printf(__('This plugin is created by Gecko Solutions. Find more plugins at <a href="http://www.geckosolutions.se/blog/wordpress-plugins/">Gecko Solutions plugins</a> %s', 'gas-injector'), $external_icon); ?>
+      	</div>
+      	
+      	<div class="description">
+      	  <?php echo __('With the optional settings you can specify which of these different tracking features you want to use. All methods are active as default. You can also add custom labels for the categories i Google Analytics.', 'gas-injector'); ?>
       	</div>
       	
       </div>
@@ -169,11 +281,51 @@ function gas_for_wordpress_plugin_options_page() {
 }
 
 /**
+ * Gets the 'checked' string if the given option value is 'on'.
+ * @param $value the option value to check
+ */
+function gas_injector_get_checked($value) {
+	if($value=='on') {
+		return 'checked';
+	}	else {
+	  return $value;
+	}
+}
+
+/**
+ * Gets the 'disabled' string if the given option value is 'on'.
+ * @param $value the option value to check
+ */
+function gas_injector_is_disabled($value) {
+  if($value=='on') {
+		return "disabled";
+	}	else {
+	  return "";
+	}
+}
+
+/**
+ * Render the option markup for the given tracking option.
+ *
+ * @param string $checkboxOpt name and id of the input checkbox.
+ * @param string $category name and id of the text input.
+ * @param string $categoryOpt name of the given cutom category.
+ * @param string $label the checkbox label for current tracking option. 
+ * @param string $defaultCategory description for the default category.
+ */
+function gas_injector_render_admin_tracking_option($checkboxOpt, $category, $categoryOpt, $label, $defaultCategory) {
+  echo "<div class='gasOption'>".
+    "<div class='trackBox'><input class='cBox' name='".$checkboxOpt."' type='checkbox' id='".$checkboxOpt."' ".gas_injector_get_checked(get_option($checkboxOpt))." /> <span class='checkboxLabel'>".$label."</span></div>".
+    "<span class='label ".gas_injector_is_disabled(get_option($checkboxOpt))."'>".__('Custom label:', 'gas-injector')."</span>".
+    "<input type='text' name='".$category."' id='".$category."' value='".$categoryOpt."' class='".gas_injector_is_disabled(get_option($checkboxOpt))."' ".gas_injector_is_disabled(get_option($checkboxOpt))." />".
+    "<span class='categoryText ". gas_injector_is_disabled(get_option($checkboxOpt))."'>".$defaultCategory."</span>".
+  "</div>";
+}
+
+/**
  * Update the GAS Injector plugin options. 
  */
-function gas_for_wordpress_plugin_options_update() {
-  
-  
+function gas_injector_plugin_options_update() {
   
   if(isset($_POST['ua_tracking_code'])) {
     update_option('ua_tracking_code', $_POST['ua_tracking_code']);
@@ -186,6 +338,44 @@ function gas_for_wordpress_plugin_options_update() {
   if(isset($_POST['site_domain_url'])) {
     update_option('site_domain_url', $_POST['site_domain_url']);
   }
+  
+  if(isset($_POST['outbound_links_category'])) {
+    update_option('outbound_links_category', $_POST['outbound_links_category']);
+  }
+  
+  if(isset($_POST['forms_category'])) {
+    update_option('forms_category', $_POST['forms_category']);
+  }
+  
+  if(isset($_POST['mailto_links_category'])) {
+    update_option('mailto_links_category', $_POST['mailto_links_category']);
+  }
+  
+  if(isset($_POST['scrolling_category'])) {
+    update_option('scrolling_category', $_POST['scrolling_category']);
+  }
+  
+  if(isset($_POST['downloads_category'])) {
+    update_option('downloads_category', $_POST['downloads_category']);
+  }
+  
+  if(isset($_POST['youtube_category'])) {
+    update_option('youtube_category', $_POST['youtube_category']);
+  }
+  
+  if(isset($_POST['vimeo_category'])) {
+    update_option('vimeo_category', $_POST['vimeo_category']);
+  }
+  
+  update_option('track_outbound_links', $_POST['track_outbound_links']);
+  update_option('track_forms', $_POST['track_forms']);
+  update_option('track_mailto_links', $_POST['track_mailto_links']);
+  update_option('track_scroll', $_POST['track_scroll']);
+  update_option('track_downloads', $_POST['track_downloads']);
+  update_option('track_youtube', $_POST['track_youtube']);
+  update_option('track_vimeo', $_POST['track_vimeo']);
+  update_option('debug', $_POST['debug']);
+  
   return $errors;
 }
 
