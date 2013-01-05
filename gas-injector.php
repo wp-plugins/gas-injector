@@ -6,7 +6,7 @@
  This will not only add basic Google Analytics tracking but also let you track which outbound links your visitors click on, 
  how they use your forms, which movies they are watching, how far down on the page do they scroll etc. This and more you get by using GAS Injector for Wordpress. 
  Just add your Google Analytics tracking code and your domain and you are done!
- Version: 1.1.1
+ Version: 1.2
  Author: Niklas Olsson
  Author URI: http://www.geckosolutions.se
  License: GPL 3.0, @see http://www.gnu.org/licenses/gpl-3.0.html
@@ -79,6 +79,13 @@ function get_gas_tracking_code() {
   $code .= "
     _gas.push(['_setAccount', '".get_option('ua_tracking_code')."']);
     _gas.push(['_setDomainName', '".get_option('site_domain_url')."']);
+  ";
+  
+  if (get_option('anonymizeip') == 'on') {
+    $code .= "_gas.push (['_gat._anonymizeIp']);";
+  }
+  
+  $code .= "
     _gas.push(['_trackPageview']);
   ";
 
@@ -117,22 +124,14 @@ function gas_injector_render_video_tracking_option($trackType, $option, $categor
   $result = "";
   if (gas_injector_isNullOrEmpty($option)) {
     
-    if (!gas_injector_isNullOrEmpty($category)) {
-      $category = "category: '".$category."',";
-    }
-    
-    if (!gas_injector_isNullOrEmpty($percentages)) {
-      $percentages = "percentages: ".$percentages.",";
-    }
-    
     $result .= "_gas.push(['".$trackType."', {";
     
     if (!gas_injector_isNullOrEmpty($category)) {
-      $result .= $category;
+      $result .= "category: '".$category."', ";
     }
     
-    if (!gas_injector_isNullOrEmpty($category)) {
-      $result .= $percentages;
+    if (!gas_injector_isNullOrEmpty($percentages)) {
+      $result .= "percentages: ".$percentages.", ";
     }
     $result .=  "force: true
     }]);";
@@ -212,7 +211,16 @@ function gas_injector_plugin_options_page() {
     	<div class="gai-col1">
         <div id="icon-themes" class="icon32"><br /></div>
         <h2><?php echo __('GAS Injector for WordPress', 'gas-injector'); ?></h2>
-  
+  			<?php 
+  			  if (!gas_injector_isNullOrEmpty(get_option('ua_tracking_code'))) {
+  			    if(!gas_injector_is_valid_ga_code()) {
+  			      echo "<div class='errorContainer'>
+  			              <h3 class='errorMsg'>".__('Multiple Google Analytics scripts detected!.', 'gas-injector')."</h3>
+  			              <p class='errorMsg'>".__('Maybe you have several Google analytics plugins active or a hard coded Google Analytics script in your theme (header.php).', 'gas-injector')."</p>
+  			            </div>";
+  			    }
+  			  }
+  			?>
         <form method="post" action="">
           
           <h4 style="margin-bottom: 0px;"><?php echo __('Google Analytics tracking code (UA-xxxx-x)', 'gas-injector'); ?></h4>
@@ -238,6 +246,13 @@ function gas_injector_plugin_options_page() {
             gas_injector_render_admin_tracking_option("track_vimeo", "vimeo_category", get_option('vimeo_category'), __('Disable tracking of Vimeo video', 'gas-injector'), __('(Default label is "Vimeo Video")', 'gas-injector'));
           ?>
           
+          <h2><?php echo __('Anonymize IP', 'gas-injector'); ?></h2>
+          
+          <div class="gasOption">
+            <h4><input name="anonymizeip" type="checkbox" id="anonymizeip" <?php echo gas_injector_get_checked(get_option('anonymizeip')); ?> /> <?php echo __('Activate anonymized ip address', 'gas-injector'); ?></h4>
+            <p><?php echo __('The anonymize ip option truncate the visitors ip address, eg. anonymize the information sent by the tracker before storing it in Google Analytics.', 'gas-injector'); ?></p>
+          </div>
+          
           <h2><?php echo __('Debug settings', 'gas-injector'); ?></h2>
           
           <div class="gasOption">
@@ -254,12 +269,9 @@ function gas_injector_plugin_options_page() {
       
       	<div class="description">
       		<?php 
-      		  echo __('Enter the tracking code from the Google Analytics account you want to use for this site. None of the java script code will be inserted if you leave this field empty. (eg. the plugin will be inactive) ', 'gas-injector');
-      		  
       		  $images_path = path_join(WP_PLUGIN_URL, basename(dirname(__FILE__))."/images/");
       		  $external_icon = '<img src="'.$images_path.'external_link_icon.png" title="External link" />';
-      		  
-      		  printf(__('Go to <a href="http://www.google.com/analytics/" target="_blank">Google Analytics</a> %s and get your tracking code.', 'gas-injector'), $external_icon);
+      		  printf(__('Enter the tracking code from the Google Analytics account you want to use for this site. None of the java script code will be inserted if you leave this field empty. (eg. the plugin will be inactive)  Go to <a href="http://www.google.com/analytics/" target="_blank">Google Analytics</a> %s and get your tracking code.', 'gas-injector'), $external_icon);
       		?>
       	</div>
       	
@@ -331,7 +343,7 @@ function gas_injector_plugin_options_update() {
     update_option('ua_tracking_code', $_POST['ua_tracking_code']);
   } 
   
-  if(isset($_POST['ua_tracking_code']) && !isValidUaCode($_POST['ua_tracking_code'])) {
+  if(isset($_POST['ua_tracking_code']) && !gas_injector_isValidUaCode($_POST['ua_tracking_code'])) {
     $errors = new WP_Error('tracking_code', __('The tracking code is on the wrong format', 'gas-injector'));
   }
   
@@ -374,6 +386,7 @@ function gas_injector_plugin_options_update() {
   update_option('track_downloads', $_POST['track_downloads']);
   update_option('track_youtube', $_POST['track_youtube']);
   update_option('track_vimeo', $_POST['track_vimeo']);
+  update_option('anonymizeip', $_POST['anonymizeip']);
   update_option('debug', $_POST['debug']);
   
   return $errors;
@@ -383,9 +396,47 @@ function gas_injector_plugin_options_update() {
  * Validate the format of the given Google Analytics tracking code.
  * @param $ua_tracking_code the given Google Analytics tracking code to validate.
  */
-function isValidUaCode($ua_tracking_code) {
+function gas_injector_isValidUaCode($ua_tracking_code) {
   if($ua_tracking_code == "" || preg_match('/^UA-\d{4,9}-\d{1,2}$/', $ua_tracking_code)) {
     return true;
   }
   return false;
+}
+
+/**
+ * Make sure we only load Google Analytics one time.
+ */
+function gas_injector_is_valid_ga_code() {
+
+  $body_content = gas_injector_get_site_content();
+  $numRes = preg_match_all("/".get_option('ua_tracking_code')."/", $body_content, $matches);
+  
+  if($numRes > 1) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+/**
+ * Get the site content.
+ * 
+ * @param $url the given url.
+ */
+function gas_injector_get_site_content() {
+  
+  if (!function_exists('curl_init')){
+      die(__('cURL is not installed', 'gas-injector'));
+  }
+    
+  $connection = curl_init();
+
+  curl_setopt($connection,CURLOPT_URL, site_url());
+  curl_setopt($connection,CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($connection,CURLOPT_CONNECTTIMEOUT, 6);
+
+  $content = curl_exec($connection);
+  curl_close($connection);
+
+  return $content;
 }

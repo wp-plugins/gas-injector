@@ -4,8 +4,8 @@ Contributors: hoyce
 Donate link: 
 Tags: google, google analytics, analytics, statistics, stats, javascript, steroids
 Requires at least: 3.4
-Tested up to: 3.4.2
-Stable tag: 1.1.1
+Tested up to: 3.5
+Stable tag: 1.2
 
 == Description ==
 
@@ -49,3 +49,7 @@ Manually
 
 = 1.1.1 =
 * Minor language fixes
+
+= 1.2 =
+* Added option for using _anonymizeIp in the script
+* Added detection for multiple loading of the same Google Analytics script e.g same UA-account multiple times

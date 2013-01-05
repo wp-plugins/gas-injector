@@ -3,9 +3,16 @@
  */
 #wpbody-content .wrap .gai-col1 {
   float:left;
-  width:600px;
+  width:660px;
 }
 
+  #wpbody-content .wrap .gai-col1 .errorContainer {
+    border: 2px dashed red;
+    margin: 14px 14px 14px 0;
+    padding: 0 10px;
+    -webkit-border-radius: 4px;
+  }
+  
   #wpbody-content .wrap .gai-col1 .errorMsg {
 	  margin-right:60px;
 	  color:red;

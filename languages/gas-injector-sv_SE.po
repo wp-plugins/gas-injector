@@ -91,15 +91,19 @@ msgid "Disable tracking of scrolling"
 msgstr "Inaktivera spårning av scrollning"
 
 #. Text in function
-#: gas-injector.php:255
+#: gas-injector.php:274
 msgid ""
 "Enter the tracking code from the Google Analytics account you want to use "
 "for this site. None of the java script code will be inserted if you leave "
-"this field empty. (eg. the plugin will be inactive) "
+"this field empty. (eg. the plugin will be inactive) Go to <a href=\"http://"
+"www.google.com/analytics/\" target=\"_blank\">Google Analytics</a> %s and "
+"get your tracking code."
 msgstr ""
 "Ange spårningskoden från det Google Analytics-konto som du vill använda för "
 "denna webbplats. Javaskriptet kommer inte läggas till om du lämnar detta "
-"fält tomt. (d.v.s. pluginet är inte aktivt)"
+"fält tomt. (d.v.s. pluginet är inte aktivt) Gå till <a href=\"http://www."
+"google.com/analytics/\" target=\"_blank\">Google Analytics</a> %s och hämta "
+"din spårningskod."
 
 #. Text in function
 #: gas-injector.php:1
@@ -151,7 +155,7 @@ msgid "Update Options"
 msgstr "Uppdatera"
 
 #. Text in function
-#: gas-injector.php:274
+#: gas-injector.php:287
 msgid ""
 "With the optional settings you can specify which of the different parts you "
 "want to includ in your analytics. All methods are active as default. You can "
@@ -172,3 +176,36 @@ msgstr "Din domän ex: .mydomain.com"
 #: gas-injector.php:319
 msgid "Custom label:"
 msgstr "Valbar kategori:"
+
+#. Text in function
+#: gas-injector.php:244
+msgid "Anonymize IP"
+msgstr "Anonymisera ip-adress"
+
+#. Text in function
+#: gas-injector.php:244
+msgid "Activate anonymized ip address"
+msgstr "Aktivera anonymisera ip-adress"
+
+#. Text in function
+#: gas-injector.php:245
+msgid ""
+"The anonymize ip option truncate the visitors ip address, eg. anonymize the "
+"information sent by the tracker before storing it in Google Analytics."
+msgstr ""
+"Med anonymiserad ip-adress menas att besökarens ip-adress trunkeras innan "
+"informationen skickas till Google Analytics."
+
+#. Text in function
+#: gas-injector.php:245
+msgid "Multiple Google Analytics scripts detected!"
+msgstr "Multipla Google Analytics-skript hittades!"
+
+#. Text in function
+#: gas-injector.php:245
+msgid ""
+"Maybe you have several Google analytics plugins active or a hard coded "
+"Google Analytics script in your theme (header.php)."
+msgstr ""
+"Du har kanske flera Google Analytics plugins aktiverade eller hårdkodat "
+"Google Analytics skript i ditt tema (header.php)."
