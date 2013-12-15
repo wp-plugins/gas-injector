@@ -2,10 +2,10 @@
 
 Contributors: hoyce
 Donate link: 
-Tags: google, google analytics, analytics, statistics, stats, javascript, steroids
+Tags: google, google analytics, analytics, statistics, stats, javascript, steroids, gas, ga, web analytics
 Requires at least: 3.4
-Tested up to: 3.5
-Stable tag: 1.2
+Tested up to: 3.8
+Stable tag: 1.3
 
 == Description ==
 
@@ -35,6 +35,11 @@ Manually
 2. Upload the `gas-injector` folder to the `/wp-content/plugins/` directory
 3. Activate the plugin through the 'Plugins' menu in WordPress
 
+== Screenshots ==
+
+1. Add your Google Analytics tracking code and domain name.
+2. Some additional settings for debugging and adding more GAS hooks for extended tracking.
+
 == Changelog ==
 
 = 1.0 =
@@ -53,3 +58,11 @@ Manually
 = 1.2 =
 * Added option for using _anonymizeIp in the script
 * Added detection for multiple loading of the same Google Analytics script e.g same UA-account multiple times
+
+= 1.3 =
+* Updated to GAS 1.11.0
+* Added option for adding GAS hooks
+* Added support for In Page Analytics / Enhanced Link Attribution
+* GAS source file src is linked to Cloudflare
+* Removed swedish translation
+* Added screenshots

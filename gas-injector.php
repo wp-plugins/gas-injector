@@ -6,7 +6,7 @@
  This will not only add basic Google Analytics tracking but also let you track which outbound links your visitors click on, 
  how they use your forms, which movies they are watching, how far down on the page do they scroll etc. This and more you get by using GAS Injector for Wordpress. 
  Just add your Google Analytics tracking code and your domain and you are done!
- Version: 1.2
+ Version: 1.3
  Author: Niklas Olsson
  Author URI: http://www.geckosolutions.se
  License: GPL 3.0, @see http://www.gnu.org/licenses/gpl-3.0.html
@@ -85,6 +85,9 @@ function get_gas_tracking_code() {
     $code .= "_gas.push (['_gat._anonymizeIp']);";
   }
   
+  $code .= "var pluginUrl = '//www.google-analytics.com/plugins/ga/inpage_linkid.js';";
+  $code .= "_gas.push(['_require', 'inpage_linkid', pluginUrl]);";
+  
   $code .= "
     _gas.push(['_trackPageview']);
   ";
@@ -98,18 +101,34 @@ function get_gas_tracking_code() {
   $code .= gas_injector_render_video_tracking_option('_gasTrackYoutube', get_option('track_youtube'), get_option('youtube_category'), "[25, 50, 75, 90]");
   $code .= gas_injector_render_video_tracking_option('_gasTrackVimeo', get_option('track_vimeo'), get_option('vimeo_category'), '');
   
+  $code .= gas_injector_render_hooks(get_option('gas_hooks'));
+  
   $code .= "
     (function() {
     var ga = document.createElement('script');
     ga.type = 'text/javascript';
     ga.async = true;
-    ga.src = '".gas_injector_getGASFile()."';
+    ga.src = '//cdnjs.cloudflare.com/ajax/libs/gas/1.11.0/gas.min.js';
     var s = document.getElementsByTagName('script')[0];
     s.parentNode.insertBefore(ga, s);
   })();
   </script>";
   
   return $code;
+}
+
+/**
+ * Render the code for GAS hooks.
+ * 
+ * @param $gas_hooks the custom code for gas hooks.
+ */
+function gas_injector_render_hooks($gas_hooks) {
+  
+  if(!gas_injector_isNullOrEmpty($gas_hooks)) {
+    return $gas_hooks;
+  } else {
+    return "";
+  }
 }
 
 /**
@@ -260,6 +279,12 @@ function gas_injector_plugin_options_page() {
             <p><?php echo __('The debug mode help you test the analytics setup and to see that the events are triggered.', 'gas-injector'); ?></p>
           </div>
           
+          <h2><?php echo __('Advanced features', 'gas-injector'); ?></h2>
+        
+          <h4 style="margin-bottom: 0px;"><?php echo __('Add code for GAS hooks: (eg. _gas.push([\'_gasTrackAudio\']);)', 'gas-injector'); ?></h4>
+          <textarea rows="10" cols="70" name="gas_hooks" id="gas_hooks"><?php echo get_option('gas_hooks'); ?></textarea>
+          <br>
+          
           <input type="hidden" name="update_gas_for_wordpress_plugin_options" value="true" />
           <p><input type="submit" name="search" value="<?php echo __('Update Options', 'gas-injector'); ?>" class="button" /></p>
         
@@ -268,7 +293,8 @@ function gas_injector_plugin_options_page() {
       <div class="gai-col2">
       
       	<div class="description">
-      		<?php 
+      		<h3><?php echo __('Get going', 'gas-injector'); ?></h3>
+      		<?php
       		  $images_path = path_join(WP_PLUGIN_URL, basename(dirname(__FILE__))."/images/");
       		  $external_icon = '<img src="'.$images_path.'external_link_icon.png" title="External link" />';
       		  printf(__('Enter the tracking code from the Google Analytics account you want to use for this site. None of the java script code will be inserted if you leave this field empty. (eg. the plugin will be inactive)  Go to <a href="http://www.google.com/analytics/" target="_blank">Google Analytics</a> %s and get your tracking code.', 'gas-injector'), $external_icon);
@@ -280,11 +306,18 @@ function gas_injector_plugin_options_page() {
       	</div>
       	
       	<div class="description">
-      	  <?php printf(__('This plugin is created by Gecko Solutions. Find more plugins at <a href="http://www.geckosolutions.se/blog/wordpress-plugins/">Gecko Solutions plugins</a> %s', 'gas-injector'), $external_icon); ?>
+      		<h4><?php echo __('Optional settings', 'gas-injector'); ?></h4>
+      	  <?php echo __('With the optional settings you can specify which of these different tracking features you want to use. All methods are active as default. You can also add custom labels for the categories i Google Analytics.', 'gas-injector'); ?>
       	</div>
       	
       	<div class="description">
-      	  <?php echo __('With the optional settings you can specify which of these different tracking features you want to use. All methods are active as default. You can also add custom labels for the categories i Google Analytics.', 'gas-injector'); ?>
+      		<h4><?php echo __('Advanced features', 'gas-injector'); ?></h4>
+      	  <p><?php echo __('In the section "Add code for GAS hooks" you can add more GSA hooks for additional tracking. eg. _gas.push([\'_gasTrackAudio\']); ', 'gas-injector'); ?></p>
+      	</div>
+      	
+      	<div class="description">
+      		<h4><?php echo __('Author', 'gas-injector'); ?></h4>
+      	  <?php printf(__('This plugin is created by Gecko Solutions. Find more plugins at <a href="http://www.geckosolutions.se/blog/wordpress-plugins/">Gecko Solutions plugins</a> %s', 'gas-injector'), $external_icon); ?>
       	</div>
       	
       </div>
@@ -377,6 +410,10 @@ function gas_injector_plugin_options_update() {
   
   if(isset($_POST['vimeo_category'])) {
     update_option('vimeo_category', $_POST['vimeo_category']);
+  }
+  
+  if(isset($_POST['gas_hooks'])) {
+    update_option('gas_hooks', stripslashes($_POST['gas_hooks']));
   }
   
   update_option('track_outbound_links', $_POST['track_outbound_links']);
