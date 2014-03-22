@@ -4,8 +4,8 @@ Contributors: hoyce
 Donate link: 
 Tags: google, google analytics, analytics, statistics, stats, javascript, steroids, gas, ga, web analytics
 Requires at least: 3.4
-Tested up to: 3.8
-Stable tag: 1.3
+Tested up to: 3.8.1
+Stable tag: 1.3.1
 
 == Description ==
 
@@ -66,3 +66,8 @@ Manually
 * GAS source file src is linked to Cloudflare
 * Removed swedish translation
 * Added screenshots
+
+= 1.3.1 =
+* Excluding logged in admins (bug fix)
+* Added DC.JS support
+* Tested stability up to Wordpress 3.8.1
