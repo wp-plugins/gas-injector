@@ -6,7 +6,7 @@
  This will not only add basic Google Analytics tracking but also let you track which outbound links your visitors click on,
  how they use your forms, which movies they are watching, how far down on the page do they scroll etc. This and more you get by using GAS Injector for Wordpress.
  Just add your Google Analytics tracking code and your domain and you are done!
- Version: 1.3.1
+ Version: 1.3.2
  Author: Niklas Olsson
  Author URI: http://www.geckosolutions.se
  License: GPL 3.0, @see http://www.gnu.org/licenses/gpl-3.0.html

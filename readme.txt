@@ -4,8 +4,8 @@ Contributors: hoyce
 Donate link: 
 Tags: google, google analytics, analytics, statistics, stats, javascript, steroids, gas, ga, web analytics
 Requires at least: 3.4
-Tested up to: 3.8.1
-Stable tag: 1.3.1
+Tested up to: 3.9
+Stable tag: 1.3.2
 
 == Description ==
 
@@ -71,3 +71,7 @@ Manually
 * Excluding logged in admins (bug fix)
 * Added DC.JS support
 * Tested stability up to Wordpress 3.8.1
+
+= 1.3.2 =
+* Added this plugin to Github https://github.com/hoyce/gas-injector
+* Tested stability up to Wordpress 3.9
